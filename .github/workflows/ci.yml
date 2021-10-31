@@ -15,7 +15,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - uses: docker/setup-qemu-action@v1
       - uses: docker/setup-buildx-action@v1
         id: buildx
       - name: Available platforms
@@ -24,4 +23,4 @@ jobs:
         with:
           push: ${{ github.event_name == 'push' }}
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/give-me-bnb:latest
-          platforms: linux/386,linux/amd64,linux/arm64
+          platforms: linux/amd64,linux/arm64
