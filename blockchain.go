@@ -15,8 +15,8 @@ import (
 
 var (
 	GasLimit uint64 = 21000
-	// 0.99 BNB
-	BnbValue = big.NewInt(0.99e18)
+	// 1 BNB
+	BnbAmount = big.NewInt(1e18)
 )
 
 func WaitTx(ctx context.Context, client *ethclient.Client, tx string) error {
@@ -46,7 +46,9 @@ func SendBnb(ctx context.Context, client *ethclient.Client, from *ecdsa.PrivateK
 		return "", err
 	}
 
-	tx := types.NewTransaction(nonce, common.HexToAddress(to), BnbValue, GasLimit, gasPrice, nil)
+	gasAmount := new(big.Int).Mul(big.NewInt(int64(GasLimit)), gasPrice)
+	amount := new(big.Int).Sub(BnbAmount, gasAmount)
+	tx := types.NewTransaction(nonce, common.HexToAddress(to), amount, GasLimit, gasPrice, nil)
 
 	chainId, err := client.NetworkID(ctx)
 	if err != nil {
