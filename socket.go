@@ -35,7 +35,7 @@ func NewSocketTransaction(
 	g, ctx := errgroup.WithContext(ctx)
 
 	g.Go(func() error {
-		return requestSocketBnb(ctx, conn, captcha, account)
+		return requestSocketBnb(conn, captcha, account)
 	})
 
 	var ret string
@@ -47,7 +47,7 @@ func NewSocketTransaction(
 	return ret, g.Wait()
 }
 
-func requestSocketBnb(ctx context.Context, conn *websocket.Conn, captcha string, account string) error {
+func requestSocketBnb(conn *websocket.Conn, captcha string, account string) error {
 	return conn.WriteJSON(map[string]interface{}{
 		"url":     account,
 		"symbol":  "BNB",
