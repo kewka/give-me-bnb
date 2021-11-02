@@ -72,7 +72,7 @@ func waitSocketTransaction(ctx context.Context, conn *websocket.Conn, account st
 		case <-ctx.Done():
 			return "", ctx.Err()
 		default:
-			msg := &SocketMessage{}
+			msg := SocketMessage{}
 			if err := conn.ReadJSON(&msg); err != nil {
 				return "", err
 			}
