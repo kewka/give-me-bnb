@@ -1,4 +1,4 @@
-package main
+package faucet
 
 import (
 	"context"
@@ -11,12 +11,13 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-func NewSocketTransaction(
+func NewTransaction(
 	ctx context.Context,
 	socketUrl string,
 	captcha string,
 	account string,
 	proxy string,
+	symbol string,
 ) (string, error) {
 	dialer := websocket.Dialer{}
 	if proxy != "" {
@@ -35,28 +36,28 @@ func NewSocketTransaction(
 	g, ctx := errgroup.WithContext(ctx)
 
 	g.Go(func() error {
-		return requestSocketBnb(conn, captcha, account)
+		return claim(conn, captcha, account, symbol)
 	})
 
 	var ret string
 	g.Go(func() error {
 		var err error
-		ret, err = waitSocketTransaction(ctx, conn, account)
+		ret, err = waitTransaction(ctx, conn, account)
 		return err
 	})
 	return ret, g.Wait()
 }
 
-func requestSocketBnb(conn *websocket.Conn, captcha string, account string) error {
+func claim(conn *websocket.Conn, captcha string, account string, symbol string) error {
 	return conn.WriteJSON(map[string]interface{}{
 		"url":     account,
-		"symbol":  "BNB",
+		"symbol":  symbol,
 		"tier":    0,
 		"captcha": captcha,
 	})
 }
 
-type SocketMessage struct {
+type Message struct {
 	Error    *string `json:"error"`
 	Requests []struct {
 		Account string `json:"account"`
@@ -66,13 +67,13 @@ type SocketMessage struct {
 	} `json:"requests"`
 }
 
-func waitSocketTransaction(ctx context.Context, conn *websocket.Conn, account string) (string, error) {
+func waitTransaction(ctx context.Context, conn *websocket.Conn, account string) (string, error) {
 	for {
 		select {
 		case <-ctx.Done():
 			return "", ctx.Err()
 		default:
-			msg := SocketMessage{}
+			msg := Message{}
 			if err := conn.ReadJSON(&msg); err != nil {
 				return "", err
 			}

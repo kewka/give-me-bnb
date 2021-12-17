@@ -1,4 +1,4 @@
-package main
+package captcha
 
 import (
 	"context"
@@ -18,7 +18,7 @@ var (
 	captchaHtml []byte
 )
 
-func NewCaptcha(ctx context.Context) (string, error) {
+func New(ctx context.Context) (string, error) {
 	l, err := net.Listen("tcp", ":0")
 	if err != nil {
 		return "", err
@@ -29,10 +29,9 @@ func NewCaptcha(ctx context.Context) (string, error) {
 	g, ctx := errgroup.WithContext(ctx)
 
 	serverCtx, serverCancel := context.WithCancel(ctx)
-	defer serverCancel()
 
 	g.Go(func() error {
-		return serveCaptcha(serverCtx, l)
+		return serve(serverCtx, l)
 	})
 
 	var ret string
@@ -40,14 +39,14 @@ func NewCaptcha(ctx context.Context) (string, error) {
 	g.Go(func() error {
 		defer serverCancel()
 		var err error
-		ret, err = executeCaptcha(ctx, captchaUrl)
+		ret, err = execute(ctx, captchaUrl)
 		return err
 	})
 
 	return ret, g.Wait()
 }
 
-func serveCaptcha(ctx context.Context, l net.Listener) error {
+func serve(ctx context.Context, l net.Listener) error {
 	g, ctx := errgroup.WithContext(ctx)
 	srv := &http.Server{
 		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -75,7 +74,7 @@ func serveCaptcha(ctx context.Context, l net.Listener) error {
 	return g.Wait()
 }
 
-func executeCaptcha(ctx context.Context, captchaUrl string) (string, error) {
+func execute(ctx context.Context, captchaUrl string) (string, error) {
 	var ret string
 	ctx, cancel := chromedp.NewContext(ctx)
 	defer cancel()
@@ -98,7 +97,7 @@ func executeCaptcha(ctx context.Context, captchaUrl string) (string, error) {
 			}
 
 			ret = string(res.Value)
-			// remove quoutes
+			// remove quotes
 			ret = ret[1 : len(ret)-1]
 			return nil
 		}),

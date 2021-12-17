@@ -4,7 +4,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
 ENV CGO_ENABLED 0
-RUN go build .
+RUN go build ./cmd/give-me-bnb
 
 FROM alpine:3.14
 WORKDIR /app
