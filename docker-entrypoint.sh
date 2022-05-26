@@ -1,5 +1,5 @@
 #!/bin/sh
-tor &>/dev/null &
+tor > /dev/null &
 
 # wait for tor
 while :
