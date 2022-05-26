@@ -1,6 +1,11 @@
+<script>
+  window.ON_CAPTCHA = (response) => {
+    window.CAPTCHA_RESPONSE = response;
+  };
+</script>
+<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
 <div
-  class="g-recaptcha"
-  data-sitekey="6LeEQewUAAAAAFo1d0OMORFXn3YaB38BZGdZiLYR"
-  data-size="invisible"
+  class="h-captcha"
+  data-sitekey="d9a9ee67-74da-4601-9f31-efe6a297a5cc"
+  data-callback="ON_CAPTCHA"
 ></div>
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>

@@ -14,11 +14,10 @@ import (
 )
 
 var (
-	proxy     string
-	rpcUrl    string
-	faucetUrl string
-	account   *blockchain.Account
-	currency  faucet.Currency
+	proxy    string
+	rpcUrl   string
+	account  *blockchain.Account
+	currency faucet.Currency
 )
 
 func main() {
@@ -31,7 +30,6 @@ func main() {
 func parseArgs() error {
 	keyArg := flag.String("key", "", "your private key (required)")
 	flag.StringVar(&proxy, "proxy", "", "proxy url")
-	flag.StringVar(&faucetUrl, "faucet", "wss://testnet.binance.org/faucet-smart/api", "bsc faucet socket url")
 	flag.StringVar(&rpcUrl, "rpc", "https://data-seed-prebsc-1-s1.binance.org:8545", "bsc testnet rpc url")
 	currencyArg := flag.String("currency", faucet.BNB.Symbol(), "faucet currency")
 	flag.Parse()
@@ -88,7 +86,6 @@ func run() error {
 	defer cancel()
 	faucetTx, err := faucet.NewTransaction(
 		ctx,
-		faucetUrl,
 		captchaRes,
 		tempAccount.PublicHex(),
 		proxy,

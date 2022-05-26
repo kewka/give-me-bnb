@@ -13,7 +13,6 @@ import (
 
 func NewTransaction(
 	ctx context.Context,
-	socketUrl string,
 	captcha string,
 	account string,
 	proxy string,
@@ -27,7 +26,7 @@ func NewTransaction(
 		}
 		dialer.Proxy = http.ProxyURL(proxyUrl)
 	}
-	conn, _, err := dialer.Dial(socketUrl, nil)
+	conn, _, err := dialer.Dial("wss://testnet.binance.org/faucet-smart/api", nil)
 	if err != nil {
 		return "", err
 	}

@@ -7,23 +7,17 @@ Automation for https://testnet.binance.org/faucet-smart with some hacks 😈
 ```sh
 $ give-me-bnb -help
 Usage of give-me-bnb:
+  -currency string
+        faucet currency (default "BNB")
+  -key string
+        your private key (required)
   -proxy string
         proxy url
-  -rpc-url string
+  -rpc string
         bsc testnet rpc url (default "https://data-seed-prebsc-1-s1.binance.org:8545")
-  -socket-url string
-        bsc faucet socket url (default "wss://testnet.binance.org/faucet-smart/api")
-  -to string
-        your address (required)
 ```
 
 ## Installation
-
-### Go binary
-
-```sh
-$ go install github.com/kewka/give-me-bnb@latest
-```
 
 ### Docker image
 
@@ -38,23 +32,27 @@ $ docker pull kewka/give-me-bnb
 ### Binary
 
 ```sh
-$ give-me-bnb -to <address>
+$ give-me-bnb -key <key>
 ```
 
 ### Docker
 
 ```sh
-$ docker run --rm kewka/give-me-bnb give-me-bnb -to <address>
+$ docker run --rm kewka/give-me-bnb give-me-bnb -key <key>
 ```
 
 ### Docker (Tor proxy)
 
 ```sh
-$ docker run --rm kewka/give-me-bnb give-me-bnb -proxy socks5://127.0.0.1:9050 -to <address>
+$ docker run --rm kewka/give-me-bnb give-me-bnb -proxy socks5://127.0.0.1:9050 -key <key>
 ```
 
 ### Docker (Tor proxy + infinite loop)
 
 ```sh
-$ docker run --rm kewka/give-me-bnb sh -c "while :; do give-me-bnb -proxy socks5://127.0.0.1:9050 -to <address>; killall -HUP tor; done"
+$ docker run --rm kewka/give-me-bnb sh -c "while :; do give-me-bnb -proxy socks5://127.0.0.1:9050 -key <key>; killall -HUP tor; done"
 ```
+
+## Credits
+
+- https://github.com/QIN2DIM/hcaptcha-challenger

@@ -1,15 +1,20 @@
 package captcha
 
 import (
+	"bufio"
+	"bytes"
 	"context"
 	_ "embed"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
+	"os"
+	"os/exec"
+	"path"
+	"strings"
 	"time"
 
-	"github.com/chromedp/cdproto/runtime"
-	"github.com/chromedp/chromedp"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -24,7 +29,7 @@ func New(ctx context.Context) (string, error) {
 		return "", err
 	}
 
-	captchaUrl := fmt.Sprintf("http://localhost:%v", l.Addr().(*net.TCPAddr).Port)
+	captchaUrl := fmt.Sprintf("http://127.0.0.1:%v", l.Addr().(*net.TCPAddr).Port)
 
 	g, ctx := errgroup.WithContext(ctx)
 
@@ -75,32 +80,21 @@ func serve(ctx context.Context, l net.Listener) error {
 }
 
 func execute(ctx context.Context, captchaUrl string) (string, error) {
-	var ret string
-	ctx, cancel := chromedp.NewContext(ctx)
-	defer cancel()
-	err := chromedp.Run(ctx,
-		chromedp.Navigate(captchaUrl),
-		chromedp.Poll("grecaptcha", nil),
-		chromedp.ActionFunc(func(ctx context.Context) error {
-			var promise *runtime.RemoteObject
-			err := chromedp.Evaluate(
-				"new Promise(resolve => grecaptcha.execute().then(resolve))",
-				&promise,
-			).Do(ctx)
-			if err != nil {
-				return err
-			}
+	wd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
 
-			res, _, err := runtime.AwaitPromise(promise.ObjectID).Do(ctx)
-			if err != nil {
-				return err
-			}
-
-			ret = string(res.Value)
-			// remove quotes
-			ret = ret[1 : len(ret)-1]
-			return nil
-		}),
-	)
-	return ret, err
+	output, err := exec.CommandContext(ctx, "python3", path.Join(wd, "third_party", "hcaptcha-challenger", "src", "main.py"), "demo", captchaUrl, "--silence", "--lang=en").Output()
+	if err != nil {
+		return "", err
+	}
+	scanner := bufio.NewScanner(bytes.NewReader(output))
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.HasPrefix(line, "CAPTCHA_RESPONSE: ") {
+			return line[len("CAPTCHA_RESPONSE: "):], nil
+		}
+	}
+	return "", errors.New("CAPTCHA_RESPONSE not found")
 }
