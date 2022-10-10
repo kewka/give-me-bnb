@@ -85,7 +85,7 @@ func execute(ctx context.Context, captchaUrl string) (string, error) {
 		return "", err
 	}
 
-	output, err := exec.CommandContext(ctx, "python3", path.Join(wd, "third_party", "hcaptcha-challenger", "src", "main.py"), "demo", captchaUrl, "--silence", "--lang=en").Output()
+	output, err := exec.CommandContext(ctx, "python3", path.Join(wd, "third_party", "hcaptcha-challenger", "src", "main.py"), "demo", captchaUrl, "--silence").Output()
 	if err != nil {
 		return "", err
 	}

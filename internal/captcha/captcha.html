@@ -1,11 +1,20 @@
 <script>
-  window.ON_CAPTCHA = (response) => {
-    window.CAPTCHA_RESPONSE = response;
+  var captcha;
+
+  var recaptchaCallback = function () {
+    hcaptcha.render("recaptcha_element", {
+      sitekey: "d9a9ee67-74da-4601-9f31-efe6a297a5cc",
+      callback: assignCallback,
+    });
+  };
+
+  var assignCallback = function (gcaptcha) {
+    captcha = gcaptcha;
   };
 </script>
-<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
-<div
-  class="h-captcha"
-  data-sitekey="d9a9ee67-74da-4601-9f31-efe6a297a5cc"
-  data-callback="ON_CAPTCHA"
-></div>
+<script
+  src="https://js.hcaptcha.com/1/api.js?onload=recaptchaCallback&render=explicit"
+  async
+  defer
+></script>
+<div id="recaptcha_element"></div>
